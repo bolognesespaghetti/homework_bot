@@ -65,7 +65,8 @@ def send_message(bot, message):
 
 def get_api_answer(timestamp):
     """Функция отправки запроса к API.
-    Возвращает запрос в формате json."""
+    Возвращает запрос в формате json.
+    """
     try:
         payload = {'from_date': timestamp}
         request = requests.get(
@@ -84,7 +85,8 @@ def get_api_answer(timestamp):
 
 def check_response(response):
     """Функция проверяющая содержимое запроса.
-    Возвращает домашнюю работу по ключу."""
+    Возвращает домашнюю работу по ключу.
+    """
     if not isinstance(response, dict):
         logger.error('Полученный ответ не является словарём')
         raise TypeError('Полученный ответ не является словарём')
@@ -102,7 +104,8 @@ def check_response(response):
 
 def parse_status(homework):
     """Функция прасинга статуса домашней работы.
-    Возвращает готовый ответ для сообщения бота."""
+    Возвращает готовый ответ для сообщения бота.
+    """
     current_status = homework.get('status')
     if current_status not in HOMEWORK_VERDICTS:
         logger.error('Неожиданный статус работы')
