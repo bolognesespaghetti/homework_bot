@@ -2,13 +2,19 @@ import logging
 import os
 import sys
 import time
+from json.decoder import JSONDecodeError
 from http import HTTPStatus
 
 import requests
 import telegram
 from dotenv import load_dotenv
-from exception import (EmptyAPIResponse, NoHomework, NoTokenException,
-                       TelegramSendMessageError, UnexpectedHomeworkStatus)
+from exception import (EmptyAPIResponse, 
+
+                       NoHomework, NoTokenException,
+
+                       TelegramSendMessageError, 
+                       
+                       UnexpectedHomeworkStatus)
 
 load_dotenv()
 
@@ -74,12 +80,17 @@ def get_api_answer(timestamp):
             headers=HEADERS,
             params=payload
         )
-        if request.status_code != HTTPStatus.OK:
-            logger.error('Статус запроса к API не 200')
-            raise requests.RequestException('Статус запроса к API не 200')
-        logger.info('Ответ от API получен.')
-    except requests.exceptions as error:
+    except requests.RequestException as error:
         logger.warning(error)
+        raise requests.exceptions(error)
+    if request.status_code != HTTPStatus.OK:
+        logger.error('Статус запроса к API не 200')
+        raise requests.RequestException('Статус запроса к API не 200')
+    logger.info('Ответ от API получен.')
+    try:
+        request.json()
+    except JSONDecodeError:
+        logger.error('Ответ не преобразуется JSON')
     return request.json()
 
 
