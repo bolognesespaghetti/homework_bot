@@ -8,12 +8,12 @@ from http import HTTPStatus
 import requests
 import telegram
 from dotenv import load_dotenv
-from exception import (EmptyAPIResponse, 
+from exception import (EmptyAPIResponse,
 
                        NoHomework, NoTokenException,
 
-                       TelegramSendMessageError, 
-                       
+                       TelegramSendMessageError,
+
                        UnexpectedHomeworkStatus)
 
 load_dotenv()
@@ -44,6 +44,7 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+
 def check_tokens():
     """Функция проверки токенов."""
     tokens = [PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]
@@ -52,6 +53,7 @@ def check_tokens():
             logger.critical(f'Отсутствует переменная окружения {token}.')
             raise NoTokenException(f'Отсутствует токен {token}')
     return tokens
+
 
 def send_message(bot, message):
     """Функция отправки сообщения в телеграм-бота."""
@@ -137,7 +139,7 @@ def main():
     5. Если ответ некорректен происходит отправка исключений.
     """
     if not check_tokens():
-       sys.exit('Нет токинов')
+        sys.exit('Нет токинов')
     check_tokens()
     logger.debug('Все токены прошли проверку.')
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
@@ -154,7 +156,7 @@ def main():
                     send_message(bot=bot, message=last_message)
         except TelegramSendMessageError as error:
             logger.exception(error)
-        except NoHomework as error:
+        except NoHomework:
             message = 'Статус домашней работы не изменился'
             last_message = message
             send_message(bot=bot, message=last_message)
