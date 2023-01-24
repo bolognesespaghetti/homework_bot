@@ -44,17 +44,14 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-
 def check_tokens():
     """Функция проверки токенов."""
     tokens = [PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]
-    for i in range(len(tokens)):
-        if not tokens[i]:
-            logger.critical(f'Отсутствует переменная окружения {tokens[i]}.')
-            raise NoTokenException(f'Отсутствует токен {tokens[i]}')
-    logger.debug('Все токены прошли проверку.')
-    return all(tokens)
-
+    for token in tokens:
+        if not token:
+            logger.critical(f'Отсутствует переменная окружения {token}.')
+            raise NoTokenException(f'Отсутствует токен {token}')
+    return tokens
 
 def send_message(bot, message):
     """Функция отправки сообщения в телеграм-бота."""
@@ -140,19 +137,27 @@ def main():
     5. Если ответ некорректен происходит отправка исключений.
     """
     if not check_tokens():
-        sys.exit('Нет токинов')
+       sys.exit('Нет токинов')
     check_tokens()
+    logger.debug('Все токены прошли проверку.')
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     timestamp = int(time.time())
+    last_message = ''
     while True:
         try:
             query = get_api_answer(timestamp=timestamp)
             response = check_response(query)
             if response:
-                get_message = parse_status(response)
-                send_message(bot=bot, message=get_message)
+                message = parse_status(response)
+                if message != last_message:
+                    last_message = message
+                    send_message(bot=bot, message=last_message)
         except TelegramSendMessageError as error:
             logger.exception(error)
+        except NoHomework as error:
+            message = 'Статус домашней работы не изменился'
+            last_message = message
+            send_message(bot=bot, message=last_message)
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             send_message(bot=bot, message=message)
