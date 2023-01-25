@@ -8,12 +8,10 @@ from http import HTTPStatus
 import requests
 import telegram
 from dotenv import load_dotenv
+
 from exception import (EmptyAPIResponse,
-
                        NoHomework, NoTokenException,
-
                        TelegramSendMessageError,
-
                        UnexpectedHomeworkStatus)
 
 load_dotenv()
@@ -90,6 +88,7 @@ def get_api_answer(timestamp):
         request.json()
     except JSONDecodeError:
         logger.error('Ответ не преобразуется JSON')
+        raise JSONDecodeError('Ответ не преобразуется JSON')
     return request.json()
 
 
